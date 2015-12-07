@@ -1,48 +1,43 @@
-class Board
-  attr_accessor :grid
+require_relative "display"
+require_relative "board"
+require_relative "piece"
+require_relative "player"
+
+class Chess
+  attr_accessor :board, :display, :selected, :players
 
   def initialize
-    @grid = Array.new(8) { Array.new(8) }
-    new_game!
+    @board = Board.new
+    @display = Display.new(@board)
+    @players = [Player.new(:white), Player.new(:black)]
   end
 
-  def new_game!
-    grid.length.times do |i|
-      grid[i].map! do |pos|
-        if i < 2 || i > 5
-          pos = Piece.new
-        else
-          pos = nil
-        end
-      end
+  def current_player
+    players.first
+  end
+
+  def switch_players!
+    players.rotate!
+  end
+
+  # rescue errors here
+  def play
+    start_pos, end_pos = move
+    board.mark(start_pos, end_pos) # let mark "raise" errors
+    # switch!
+  end
+
+
+  def move
+    result = []
+    until result.length == 2
+      display.render
+      move = display.get_input
+      result << move if move.is_a?(Array)
     end
+
+    result # raise an error if result.first is not the right color
   end
 
-  def move(start, end_pos)
-    raise "error" unless self[end_pos].nil? && self[start].is_a?(Piece)
-    self[start], self[end_pos] = self[end_pos], self[start]
-  # rescue MoveError => e # OccupiedSpaceError, EmptyStart, PieceMoveError
-  #   e.message
-  #   retry
-  end
 
-  def [](pos)
-    grid[pos.first][pos.last]
-  end
-
-  def []=(pos, val)
-    self.grid[pos.first][pos.last] = val
-  end
-end
-
-class Piece
-  def initialize
-  end
-
-  def inspect
-    "x"
-  end
-end
-
-class Display
 end
