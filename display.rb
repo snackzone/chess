@@ -27,7 +27,6 @@ class Display
     end
   end
 
-  #change nil to render a " " here.
   def colors_for(i, j)
     if [i, j] == cursor_pos
       bg = :yellow
@@ -38,11 +37,10 @@ class Display
     end
 
     if board[[i, j]].is_a?(Piece)
-      color = :black
-      # board[[i, j]].color
+      color = board[[i, j]].color
     end
 
-    { background: bg, color: :black }
+    { background: bg, color: color }
   end
 
   def render

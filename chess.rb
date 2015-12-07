@@ -24,7 +24,7 @@ class Chess
   def play
     start_pos, end_pos = move
     board.mark(start_pos, end_pos) # let mark "raise" errors
-    # switch!
+    switch_players!
   end
 
 
