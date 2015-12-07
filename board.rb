@@ -1,8 +1,4 @@
 class Board
-  PIECES = [
-
-  ]
-
   attr_accessor :grid
 
   def initialize
@@ -21,7 +17,7 @@ class Board
       when 6
         place_pawns(i, :white)
       when 7
-        place_pieces(i, :black)
+        place_pieces(i, :white)
       else
         row
       end
@@ -29,31 +25,35 @@ class Board
   end
 
   def place_pieces(i, color)
-    row = grid[i].map.with_index do |pos, j|
+    grid[i].map.with_index do |pos, j|
+      opts = { color: color, pos: [i, j], board: self }
       case j
       when 0, 7
-        pos = Rook.new(color: color)
+        pos = Rook.new(opts)
       when 1, 6
-        pos = Knight.new(color: color)
+        pos = Knight.new(opts)
       when 2, 5
-        pos = Bishop.new(color: color)
+        pos = Bishop.new(opts)
       when 3
-        pos = Queen.new(color: color)
+        pos = Queen.new(opts)
       when 4
-        pos = King.new(color: color)
+        pos = King.new(opts)
       end
     end
-
-    color == :white ? row.reverse! : row
   end
 
   def place_pawns(i, color)
-    grid[i].map { |pos| pos = Pawn.new(color: color) }
+    grid[i].map.with_index do |pos, j|
+      opts = { color: color, pos: [i, j], board: self }
+      pos = Pawn.new(opts)
+    end
   end
 
 
   def mark(start, end_pos)
-    raise "error" unless self[end_pos].nil? && self[start].is_a?(Piece)
+    raise MoveError, "that space is taken!" unless self[end_pos].nil?
+    raise MoveError, "you can't move there!" unless self[start].moves.include?(end_pos)
+
     self[start], self[end_pos] = self[end_pos], self[start]
   # rescue MoveError => e # OccupiedSpaceError, EmptyStart, PieceMoveError
   #   e.message

@@ -7,9 +7,9 @@ class Piece
     @board = opts[:board]
   end
 
-  def inspect
-    "x"
-  end
+  # def inspect
+  #   "x"
+  # end
 
   def to_s
     "x"
@@ -31,7 +31,7 @@ class SlidingPiece < Piece
   def find_cardinal_moves
     result = []
     x, y = pos
-
+    debugger
     i = 1
     until board[[x, y - i]].is_a?(Piece) || y - i < 0
       result << [x, y - i]

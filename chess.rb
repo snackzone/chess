@@ -22,9 +22,22 @@ class Chess
 
   # rescue errors here
   def play
-    start_pos, end_pos = move
-    board.mark(start_pos, end_pos) # let mark "raise" errors
-    switch_players!
+    until over?
+      begin
+        start_pos, end_pos = move
+        raise MoveError,
+          "that's not your piece!" unless board[start_pos].color == current_player.color
+        board.mark(start_pos, end_pos)
+      rescue MoveError => e
+        puts e.message
+        retry
+      end
+      switch_players!
+    end
+  end
+
+  def over?
+    false
   end
 
 
@@ -34,10 +47,19 @@ class Chess
       display.render
       move = display.get_input
       result << move if move.is_a?(Array)
+      p result
     end
 
     result # raise an error if result.first is not the right color
   end
 
 
+end
+
+
+class MoveError < StandardError
+  attr_accessor :message
+  def initialize(message)
+    @message = message
+  end
 end
