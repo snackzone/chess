@@ -50,6 +50,7 @@ class Board
 
 
   def mark(start, end_pos)
+    # return nil if start == end_pos
     selected_piece = self[start]
     selected_piece.moved = true if selected_piece.is_a?(Pawn)
     self[end_pos] = selected_piece
@@ -87,9 +88,5 @@ class Board
 
   def []=(pos, val)
     self.grid[pos.first][pos.last] = val
-  end
-
-  def inspect
-    Display.new(self).render
   end
 end

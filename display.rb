@@ -45,7 +45,7 @@ class Display
 
   def render
     system("clear")
-    #puts "#{game.current_player.color}'s turn:"
+    puts "#{game.current_player.color}'s turn:"
     build_grid.each { |row| puts row.join }
     nil
   end

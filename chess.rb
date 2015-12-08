@@ -55,13 +55,16 @@ class Chess
       selected_pos = display.cursor_pos
       if first_selected
         self.second_selected = selected_pos
-        p "second: #{second_selected}"
-        board.mark(first_selected, second_selected) if valid_move?
-        self.first_selected, self.second_selected = nil
+        if first_selected == second_selected
+          self.first_selected, self.second_selected = nil
+          move
+        else
+          board.mark(first_selected, second_selected) if valid_move?
+          self.first_selected, self.second_selected = nil
+        end
       else
         self.first_selected = selected_pos if board[selected_pos].is_a?(Piece) &&
           board[selected_pos].color == current_player.color
-        p "first: #{first_selected}"
         move
       end
     else
@@ -71,7 +74,6 @@ class Chess
 
   def valid_move?
     test_board = dup_board
-    #raise IntoCheckError if test_board.checked?(other_player.color)
     raise MoveError unless board[first_selected].moves.include?(second_selected)
     test_board.mark(first_selected, second_selected)
     debugger if test_board.checked?(current_player.color)
@@ -85,7 +87,6 @@ class Chess
     board.grid.each_with_index do |row, row_idx|
       row.each_with_index do |piece, piece_idx|
         if piece.nil?
-          # duped_board[[row_idx, piece_idx]] << nil
           next
         else
           duped_piece = piece.class.new(color: piece.color, pos: piece.pos, board: duped_board)
