@@ -1,8 +1,8 @@
 class Board
   attr_accessor :grid
 
-  def initialize
-    @grid = Array.new(8) { Array.new(8) }
+  def initialize(grid = Array.new(8) { Array.new(8) })
+    @grid = grid
     new_game!
   end
 
@@ -51,9 +51,6 @@ class Board
 
 
   def mark(start, end_pos)
-    raise MoveError, "that space is taken!" unless self[end_pos].nil?
-    raise MoveError, "you can't move there!" unless self[start].moves.include?(end_pos)
-
     self[start], self[end_pos] = self[end_pos], self[start]
   # rescue MoveError => e # OccupiedSpaceError, EmptyStart, PieceMoveError
   #   e.message

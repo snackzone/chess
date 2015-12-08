@@ -2,6 +2,7 @@ require_relative "display"
 require_relative "board"
 require_relative "piece"
 require_relative "player"
+require 'byebug'
 
 class Chess
   attr_accessor :board, :display, :selected, :players
@@ -30,6 +31,7 @@ class Chess
         board.mark(start_pos, end_pos)
       rescue MoveError => e
         puts e.message
+        sleep(1)
         retry
       end
       switch_players!
@@ -46,9 +48,13 @@ class Chess
     until result.length == 2
       display.render
       move = display.get_input
+      p move
       result << move if move.is_a?(Array)
       p result
     end
+
+    # raise MoveError, "that space is taken!" unless board[end_pos].nil?
+    # raise MoveError, "you can't move there!" unless board[start].moves.include?(end_pos)
 
     result # raise an error if result.first is not the right color
   end

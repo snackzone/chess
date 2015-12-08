@@ -28,34 +28,68 @@ class SlidingPiece < Piece
     }
   end
 
+  # def find_cardinal_moves
+  #   result = []
+  #   x, y = pos
+  #   debugger
+  #   i = 1
+  #   until board[[x, y - i]].is_a?(Piece) || y - i < 0
+  #     result << [x, y - i]
+  #     i += 1
+  #   end
+  #
+  #   i = 1
+  #   until board[[x, y + i]].is_a?(Piece) || y + i > 7
+  #     result << [x, y +  i]
+  #     i += 1
+  #   end
+  #
+  #   i = 1
+  #   until board[[x - i, y]].is_a?(Piece) || x - i < 0
+  #     result << [x - i, y]
+  #     i += 1
+  #   end
+  #
+  #   i = 1
+  #   until board[[x + i, y]].is_a?(Piece) || x + i > 7
+  #     result << [x + i, y]
+  #     i += 1
+  #   end
+  #
+  #   result
+  # end
+
   def find_cardinal_moves
-    result = []
+    find_horizontal_moves(board.grid, pos)
+      .concat(find_vertical_moves)
+  end
+
+  def find_vertical_moves
+    find_horizontal_moves(board.grid.transpose, pos.reverse).map(&:reverse!)
+  end
+
+  def find_horizontal_moves(grid, pos)
     x, y = pos
-    debugger
-    i = 1
-    until board[[x, y - i]].is_a?(Piece) || y - i < 0
-      result << [x, y - i]
-      i += 1
+    result = [pos]
+    (y - 1).downto(0).each do |j|
+      break if j < 0
+      if grid[x][j].is_a?(Piece)
+        result << [x, j] unless grid[x][j].color == color
+        break
+      else
+        result << [x, j]
+      end
     end
 
-    i = 1
-    until board[[x, y + i]].is_a?(Piece) || y + i > 7
-      result << [x, y +  i]
-      i += 1
+    (y + 1...8).each do |j|
+      break if j > 7
+      if grid[x][j].is_a?(Piece)
+        result << [x, j] unless grid[x][j].color == color
+        break
+      else
+        result << [x, j]
+      end
     end
-
-    i = 1
-    until board[[x - i, y]].is_a?(Piece) || x - i < 0
-      result << [x - i, y]
-      i += 1
-    end
-
-    i = 1
-    until board[[x + i, y]].is_a?(Piece) || x + i > 7
-      result << [x + i, y]
-      i += 1
-    end
-
     result
   end
 
@@ -94,9 +128,12 @@ class Bishop < SlidingPiece
   end
 
   def to_s
-    "B"
+    "♝"
   end
 end
+
+##♜    ♞    ♝    ♛    ♚    ♝    ♞    ♜
+#7    ♟    ♟    ♟    ♟    ♟    ♟    ♟    ♟
 
 class Rook < SlidingPiece
   def moves
@@ -105,7 +142,7 @@ class Rook < SlidingPiece
   end
 
   def to_s
-    "R"
+    "♜"
   end
 end
 
@@ -116,7 +153,7 @@ class Queen < SlidingPiece
   end
 
   def to_s
-    "Q"
+    "♛"
   end
 end
 
@@ -125,18 +162,18 @@ end
 
 class Pawn < Piece
   def to_s
-    "P"
+    "♟"
   end
 end
 
 class Knight < SteppingPiece
   def to_s
-    "N"
+    "♞"
   end
 end
 
 class King < SteppingPiece
   def to_s
-    "K"
+    "♚"
   end
 end
