@@ -51,10 +51,9 @@ class Board
 
 
   def mark(start, end_pos)
-    self[start], self[end_pos] = self[end_pos], self[start]
-  # rescue MoveError => e # OccupiedSpaceError, EmptyStart, PieceMoveError
-  #   e.message
-  #   retry
+    debugger
+    self[end_pos] = self[start]
+    self[start] = nil
   end
 
   def in_bounds?(pos)

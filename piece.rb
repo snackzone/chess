@@ -28,37 +28,6 @@ class SlidingPiece < Piece
     }
   end
 
-  # def find_cardinal_moves
-  #   result = []
-  #   x, y = pos
-  #   debugger
-  #   i = 1
-  #   until board[[x, y - i]].is_a?(Piece) || y - i < 0
-  #     result << [x, y - i]
-  #     i += 1
-  #   end
-  #
-  #   i = 1
-  #   until board[[x, y + i]].is_a?(Piece) || y + i > 7
-  #     result << [x, y +  i]
-  #     i += 1
-  #   end
-  #
-  #   i = 1
-  #   until board[[x - i, y]].is_a?(Piece) || x - i < 0
-  #     result << [x - i, y]
-  #     i += 1
-  #   end
-  #
-  #   i = 1
-  #   until board[[x + i, y]].is_a?(Piece) || x + i > 7
-  #     result << [x + i, y]
-  #     i += 1
-  #   end
-  #
-  #   result
-  # end
-
   def find_cardinal_moves
     find_horizontal_moves(board.grid, pos)
       .concat(find_vertical_moves)

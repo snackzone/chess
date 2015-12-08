@@ -7,6 +7,7 @@ module Cursorable
     "\e[C" => :right,
     "\e[D" => :left,
      "\r" => :return,
+     "s" => :s,
      "\u0003" => :ctrl_c
   }
 
@@ -27,10 +28,12 @@ module Cursorable
     when :ctrl_c
       exit 0
     when :return, :space
-      @cursor_pos
+      :return
     when :left, :right, :up, :down
       update_pos(MOVES[key])
       nil
+    when :s
+      :save
     end
   end
 
