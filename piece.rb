@@ -18,6 +18,13 @@ class Piece
 end
 
 class SlidingPiece < Piece
+  DIAG_MOVES = [
+            [1, 1],
+            [1, -1],
+            [-1, 1],
+            [-1, -1]
+          ]
+
   def moves
     potential_moves = {
       cardinal: find_cardinal_moves,
@@ -60,52 +67,73 @@ class SlidingPiece < Piece
   end
 
   def find_diagonal_moves
-    x, y = pos
+    cur_x, cur_y = pos
     result = [pos]
 
-    (1..7).each do |i|
-      break if x == 7
-      if board[[x + i,  y - i]].is_a?(Piece)
-        result << [x + i, y - i] unless board[[x + i,  y - i]].color == color
-        break
-      else
-        result << [x + i, y - i]
+    DIAG_MOVES.each do |dx, dy|
+      new_pos = [cur_x, cur_y]
+      new_pos = [new_pos.first + dx, new_pos.last + dy]
+
+      while board.in_bounds?(new_pos)
+        if board[new_pos].is_a?(Piece)
+          result << new_pos unless board[new_pos].color == color
+          break
+        else
+          result << new_pos
+        end
+
+        new_pos = [new_pos.first + dx, new_pos.last + dy]
       end
     end
 
-    (1..7).each do |i|
-      break if x == 7
-      if board[[x + i, y + i]].is_a?(Piece)
-        result << [x + i, y +  i] unless board[[x + i, y + i]].color == color
-        break
-      else
-        result << [x + i, y +  i]
-      end
-    end
-
-    (1..7).each do |i|
-      break if x == 0
-      if board[[x - i, y + i]].is_a?(Piece)
-        result << [x - i, y + i] unless board[[x - i, y + i]].color == color
-        break
-      else
-        result << [x - i, y + i]
-      end
-    end
-
-    (1..7).each do |i|
-      break if x == 0
-      if board[[x - i, y - i]].is_a?(Piece)
-        result << [x - i, y - i] unless board[[x - i, y - i]].color == color
-        break
-      else
-        result << [x - i, y - i]
-      end
-    end
-
-    result.select { |pos| board.in_bounds?(pos) }
+    result
   end
 end
+
+    #
+    # (1..7).each do |i|
+    #   break if x == 7 || y == 0
+    #   if board[[x + i,  y - i]].is_a?(Piece)
+    #     result << [x + i, y - i] unless board[[x + i,  y - i]].color == color
+    #     break
+    #   else
+    #     result << [x + i, y - i]
+    #   end
+    # end
+    #
+    # (1..7).each do |i|
+    #   break if x == 7 || y == 7
+    #   if board[[x + i, y + i]].is_a?(Piece)
+    #     result << [x + i, y +  i] unless board[[x + i, y + i]].color == color
+    #     break
+    #   else
+    #     result << [x + i, y +  i]
+    #   end
+    # end
+    #
+    # (1..7).each do |i|
+    #   break if x == 0 || y == 7
+    #   if board[[x - i, y + i]].is_a?(Piece)
+    #     result << [x - i, y + i] unless board[[x - i, y + i]].color == color
+    #     break
+    #   else
+    #     result << [x - i, y + i]
+    #   end
+    # end
+    #
+    # (1..7).each do |i|
+    #   break if x == 0 || y == 0
+    #   if board[[x - i, y - i]].is_a?(Piece)
+    #     result << [x - i, y - i] unless board[[x - i, y - i]].color == color
+    #     break
+    #   else
+    #     result << [x - i, y - i]
+    #   end
+    # end
+#
+#     result.select { |pos| board.in_bounds?(pos) }
+#   end
+# end
 
 class Bishop < SlidingPiece
   def moves
@@ -144,13 +172,59 @@ class SteppingPiece < Piece
 end
 
 class Pawn < Piece
+  attr_accessor :moved
+
   def initialize(opts)
     super(opts)
     @moved = false
   end
 
-  def moves
+  MOVES = {
+            black_moves:   [[1, 0], [2, 0]],
+            black_attacks: [[1 , -1],[1, 1]],
+            white_moves:   [[-1, 0],[-2, 0]],
+            white_attacks: [[-1 , -1],[-1, 1]]
+          }
+  #map each coordinate * 1 for white moves.
 
+  def moves
+    if color == :black
+      find_moves(MOVES[:black_moves]) +
+      find_attacks(MOVES[:black_attacks])
+    else
+      find_moves(MOVES[:white_moves]) +
+      find_attacks(MOVES[:white_attacks])
+    end
+  end
+
+  def find_moves(moves)
+    cur_x, cur_y = pos
+    valid_moves = [pos]
+
+    new_pos = [cur_x + moves.first[0], cur_y + moves.first[1]]
+    if board[new_pos].nil?
+      valid_moves << new_pos
+      double_move = [cur_x + moves.last[0], cur_y + moves.last[1]]
+      valid_moves << double_move if board[double_move].nil? && moved == false
+    end
+
+    valid_moves
+  end
+
+  def find_attacks(attacks)
+    cur_x, cur_y = pos
+    valid_moves = []
+
+    attacks.each do |(dx, dy)|
+      new_pos = [cur_x + dx, cur_y + dy]
+      if new_pos.all? { |coord| coord.between?(0, 7) }
+        if board[new_pos].is_a?(Piece)
+          valid_moves << new_pos unless board[new_pos].color == color
+        end
+      end
+    end
+
+    valid_moves
   end
 
   def to_s
@@ -176,7 +250,7 @@ class Knight < SteppingPiece
   end
 
   def moves
-    valid_moves = []
+    valid_moves = [pos]
 
     cur_x, cur_y = pos
     MOVES.each do |(dx, dy)|
@@ -191,7 +265,6 @@ class Knight < SteppingPiece
       end
     end
 
-    p valid_moves
     valid_moves
   end
 end
@@ -213,7 +286,7 @@ class King < SteppingPiece
   end
 
   def moves
-    valid_moves = []
+    valid_moves = [pos]
 
     cur_x, cur_y = pos
     MOVES.each do |(dx, dy)|
@@ -227,7 +300,7 @@ class King < SteppingPiece
         end
       end
     end
-    p valid_moves
+
     valid_moves
   end
 end
