@@ -4,8 +4,17 @@ require_relative "piece"
 require_relative "player"
 require_relative "error"
 require 'byebug'
+require 'yaml'
 
 class Chess
+  def self.load_game
+     puts "loading saved game..."
+     sleep(1)
+
+     loaded_game = YAML.load_file("SAVED_GAME.yml")
+     loaded_game.play
+   end
+
   attr_accessor :board, :display, :first_selected, :second_selected, :players
 
   def initialize
@@ -41,7 +50,7 @@ class Chess
       switch_players!
     end
 
-    display.render
+    # display.render
     puts "Checkmate!"
     puts "#{other_player.color} wins!"
   end
@@ -51,6 +60,7 @@ class Chess
     case display.get_input
     when :save
       save
+      switch_players!
     when :return
       selected_pos = display.cursor_pos
       if first_selected
@@ -88,7 +98,7 @@ class Chess
 
     color_pieces.all? do |piece|
       moves = piece.moves
-      moves.each do |move|
+      moves.all? do |move|
         test_board = dup_board
         test_board.mark(piece.pos, move)
         test_board.checked?(piece.color)
@@ -114,6 +124,13 @@ class Chess
   end
 
   def save
-    puts "game saved!"
+    File.write("SAVED_GAME.yml", to_yaml)
   end
+end
+
+if __FILE__ == $PROGRAM_NAME
+  puts "enter NEW or LOAD."
+  input = gets.chomp.downcase
+
+  input == "load" ? Chess.load_game : Chess.new.play
 end
