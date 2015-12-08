@@ -51,7 +51,10 @@ class Board
 
 
   def mark(start, end_pos)
-    self[end_pos] = self[start]
+    selected_piece = self[start]
+    selected_piece.moved = true if selected_piece.is_a?(Pawn)
+    self[end_pos] = selected_piece
+    selected_piece.pos = end_pos
     self[start] = nil
   end
 

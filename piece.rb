@@ -1,15 +1,12 @@
 class Piece
-  attr_reader :color, :pos, :board
+  attr_reader :color, :board
+  attr_accessor :pos
 
   def initialize(opts = {})
     @color = opts[:color]
     @pos = opts[:pos]
     @board = opts[:board]
   end
-
-  # def inspect
-  #   "x"
-  # end
 
   def to_s
     "x"
@@ -68,26 +65,42 @@ class SlidingPiece < Piece
 
     (1..7).each do |i|
       break if x == 7
-      break if board[[x + i,  y - i]].is_a?(Piece)
-      result << [x + i, y - i]
+      if board[[x + i,  y - i]].is_a?(Piece)
+        result << [x + i, y - i] unless board[[x + i,  y - i]].color == color
+        break
+      else
+        result << [x + i, y - i]
+      end
     end
 
     (1..7).each do |i|
       break if x == 7
-      break if board[[x + i, y + i]].is_a?(Piece)
-      result << [x + i, y +  i]
+      if board[[x + i, y + i]].is_a?(Piece)
+        result << [x + i, y +  i] unless board[[x + i, y + i]].color == color
+        break
+      else
+        result << [x + i, y +  i]
+      end
     end
 
     (1..7).each do |i|
       break if x == 0
-      break if board[[x - i, y + i]].is_a?(Piece)
-      result << [x - i, y + i]
+      if board[[x - i, y + i]].is_a?(Piece)
+        result << [x - i, y + i] unless board[[x - i, y + i]].color == color
+        break
+      else
+        result << [x - i, y + i]
+      end
     end
 
     (1..7).each do |i|
       break if x == 0
-      break if board[[x - i, y - i]].is_a?(Piece)
-      result << [x - i, y - i]
+      if board[[x - i, y - i]].is_a?(Piece)
+        result << [x - i, y - i] unless board[[x - i, y - i]].color == color
+        break
+      else
+        result << [x - i, y - i]
+      end
     end
 
     result.select { |pos| board.in_bounds?(pos) }
@@ -104,9 +117,6 @@ class Bishop < SlidingPiece
     "♝"
   end
 end
-
-##♜    ♞    ♝    ♛    ♚    ♝    ♞    ♜
-#7    ♟    ♟    ♟    ♟    ♟    ♟    ♟    ♟
 
 class Rook < SlidingPiece
   def moves
@@ -134,19 +144,90 @@ class SteppingPiece < Piece
 end
 
 class Pawn < Piece
+  def initialize(opts)
+    super(opts)
+    @moved = false
+  end
+
+  def moves
+
+  end
+
   def to_s
     "♟"
   end
 end
 
 class Knight < SteppingPiece
+
+  MOVES = [
+    [-2, -1],
+    [-2,  1],
+    [-1, -2],
+    [-1,  2],
+    [ 1, -2],
+    [ 1,  2],
+    [ 2, -1],
+    [ 2,  1]
+  ]
+
   def to_s
     "♞"
+  end
+
+  def moves
+    valid_moves = []
+
+    cur_x, cur_y = pos
+    MOVES.each do |(dx, dy)|
+      new_pos = [cur_x + dx, cur_y + dy]
+
+      if new_pos.all? { |coord| coord.between?(0, 7) }
+        if board[new_pos].is_a?(Piece)
+          valid_moves << new_pos unless board[new_pos].color == color
+        else
+          valid_moves << new_pos
+        end
+      end
+    end
+
+    p valid_moves
+    valid_moves
   end
 end
 
 class King < SteppingPiece
+  MOVES = [
+    [-1, -1],
+    [-1, 1],
+    [-1, 0],
+    [0, -1],
+    [1, 0],
+    [0, 1],
+    [1, -1],
+    [1, 1]
+  ]
+
   def to_s
     "♚"
+  end
+
+  def moves
+    valid_moves = []
+
+    cur_x, cur_y = pos
+    MOVES.each do |(dx, dy)|
+      new_pos = [cur_x + dx, cur_y + dy]
+
+      if new_pos.all? { |coord| coord.between?(0, 7) }
+        if board[new_pos].is_a?(Piece)
+          valid_moves << new_pos unless board[new_pos].color == color
+        else
+          valid_moves << new_pos
+        end
+      end
+    end
+    p valid_moves
+    valid_moves
   end
 end
