@@ -4,13 +4,12 @@ require_relative 'cursorable'
 
 class Display
   include Cursorable
-  attr_accessor :board, :game, :cursor_pos, :selected
+  attr_accessor :board, :game, :cursor_pos
 
   def initialize(board, game=nil)
     @board = board
     @game = game
     @cursor_pos = [0, 0]
-    @selected = false
   end
 
   def build_grid
@@ -38,6 +37,10 @@ class Display
 
     if board[[i, j]].is_a?(Piece)
       color = board[[i, j]].color
+    end
+
+    if game.first_selected && game.first_selected == [i, j]
+      bg = :green
     end
 
     { background: bg, color: color }
