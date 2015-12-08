@@ -29,11 +29,11 @@ class Chess
       begin
         move
       rescue MoveError => e
+        self.first_selected, self.second_selected = nil
         puts e.message
         sleep(1)
         retry
       end
-
       switch_players!
     end
   end
@@ -53,9 +53,9 @@ class Chess
       if first_selected
         self.second_selected = selected_pos
         p "second: #{second_selected}"
-        #debugger
         board.mark(first_selected, second_selected) if valid_move?
         self.first_selected, self.second_selected = nil
+
       else
         self.first_selected = selected_pos if board[selected_pos].is_a?(Piece) &&
           board[selected_pos].color == current_player.color
@@ -68,7 +68,11 @@ class Chess
   end
 
   def valid_move?
-    board[second_selected].nil?
+    raise MoveError unless board[first_selected].moves.include?(second_selected)
+    # test_board = dup_board
+    # test_board.mark(first_selected, second_selected)
+    # raise CheckError if test_board.checked?
+    true
   end
 
   def save

@@ -64,24 +64,28 @@ class SlidingPiece < Piece
 
   def find_diagonal_moves
     x, y = pos
-    result = []
+    result = [pos]
 
     (1..7).each do |i|
-      break if board[[x + i, y - i]].is_a?(Piece)
+      break if x == 7
+      break if board[[x + i,  y - i]].is_a?(Piece)
       result << [x + i, y - i]
     end
 
     (1..7).each do |i|
+      break if x == 7
       break if board[[x + i, y + i]].is_a?(Piece)
       result << [x + i, y +  i]
     end
 
     (1..7).each do |i|
+      break if x == 0
       break if board[[x - i, y + i]].is_a?(Piece)
       result << [x - i, y + i]
     end
 
     (1..7).each do |i|
+      break if x == 0
       break if board[[x - i, y - i]].is_a?(Piece)
       result << [x - i, y - i]
     end

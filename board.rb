@@ -51,7 +51,6 @@ class Board
 
 
   def mark(start, end_pos)
-    debugger
     self[end_pos] = self[start]
     self[start] = nil
   end

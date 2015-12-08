@@ -4,11 +4,11 @@ class MoveError < StandardError
   end
 end
 
-class WrongPiece < MoveError
-  def message
-    "that's not your piece!"
-  end
-end
+# class WrongPiece < MoveError
+#   def message
+#     "that's not your piece!"
+#   end
+# end
 
 # class OccupiedSpaceError < MoveError
 #   def message
