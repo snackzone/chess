@@ -3,7 +3,6 @@ class Board
 
   def initialize(grid = Array.new(8) { Array.new(8) })
     @grid = grid
-    new_game!
   end
 
   def new_game!
@@ -58,6 +57,26 @@ class Board
     self[start] = nil
   end
 
+  def checked?(color)
+    king_pos = find_king(color)
+
+    grid.flatten.any? do |piece|
+      if piece.is_a?(Piece) && piece.pos != king_pos
+        piece.moves.include?(king_pos)
+      end
+    end
+  end
+
+  # def checkmate?(color)
+  #   king_pos = find_king(color)
+  # end
+
+  def find_king(color)
+    grid.flatten.find do |piece|
+      piece.is_a?(King) && piece.color == color
+    end.pos
+  end
+
   def in_bounds?(pos)
     pos.all? { |coord| coord.between?(0, 7) }
   end
@@ -68,5 +87,9 @@ class Board
 
   def []=(pos, val)
     self.grid[pos.first][pos.last] = val
+  end
+
+  def inspect
+    Display.new(self).render
   end
 end

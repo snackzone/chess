@@ -10,13 +10,18 @@ class Chess
 
   def initialize
     @board = Board.new
-    @display = Display.new(@board)
+    @display = Display.new(@board, self)
     @players = [Player.new(:white), Player.new(:black)]
     @first_selected, @second_selected = nil
+    @board.new_game!
   end
 
   def current_player
     players.first
+  end
+
+  def other_player
+    players.last
   end
 
   def switch_players!
@@ -65,11 +70,31 @@ class Chess
   end
 
   def valid_move?
+    test_board = dup_board
+    #raise IntoCheckError if test_board.checked?(other_player.color)
     raise MoveError unless board[first_selected].moves.include?(second_selected)
-    # test_board = dup_board
-    # test_board.mark(first_selected, second_selected)
-    # raise CheckError if test_board.checked?
+    test_board.mark(first_selected, second_selected)
+    debugger if test_board.checked?(current_player.color)
+    raise CheckError if test_board.checked?(current_player.color)
     true
+  end
+
+  def dup_board
+    duped_board = Board.new
+
+    board.grid.each_with_index do |row, row_idx|
+      row.each_with_index do |piece, piece_idx|
+        if piece.nil?
+          # duped_board[[row_idx, piece_idx]] << nil
+          next
+        else
+          duped_piece = piece.class.new(color: piece.color, pos: piece.pos, board: duped_board)
+          duped_board[[row_idx, piece_idx]] = duped_piece
+        end
+      end
+    end
+
+    duped_board
   end
 
   def save

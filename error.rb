@@ -18,12 +18,13 @@ end
 
 class CheckError < MoveError
   def message
-    "you must move out of check."
+    #debugger
+    "CheckError. you must move out of check."
   end
 end
 
 class IntoCheckError < MoveError
   def message
-    "you cannot move into check."
+    "IntoCheck Error. you cannot move into check."
   end
 end

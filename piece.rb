@@ -90,50 +90,6 @@ class SlidingPiece < Piece
   end
 end
 
-    #
-    # (1..7).each do |i|
-    #   break if x == 7 || y == 0
-    #   if board[[x + i,  y - i]].is_a?(Piece)
-    #     result << [x + i, y - i] unless board[[x + i,  y - i]].color == color
-    #     break
-    #   else
-    #     result << [x + i, y - i]
-    #   end
-    # end
-    #
-    # (1..7).each do |i|
-    #   break if x == 7 || y == 7
-    #   if board[[x + i, y + i]].is_a?(Piece)
-    #     result << [x + i, y +  i] unless board[[x + i, y + i]].color == color
-    #     break
-    #   else
-    #     result << [x + i, y +  i]
-    #   end
-    # end
-    #
-    # (1..7).each do |i|
-    #   break if x == 0 || y == 7
-    #   if board[[x - i, y + i]].is_a?(Piece)
-    #     result << [x - i, y + i] unless board[[x - i, y + i]].color == color
-    #     break
-    #   else
-    #     result << [x - i, y + i]
-    #   end
-    # end
-    #
-    # (1..7).each do |i|
-    #   break if x == 0 || y == 0
-    #   if board[[x - i, y - i]].is_a?(Piece)
-    #     result << [x - i, y - i] unless board[[x - i, y - i]].color == color
-    #     break
-    #   else
-    #     result << [x - i, y - i]
-    #   end
-    # end
-#
-#     result.select { |pos| board.in_bounds?(pos) }
-#   end
-# end
 
 class Bishop < SlidingPiece
   def moves
