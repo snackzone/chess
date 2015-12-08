@@ -50,7 +50,7 @@ class Board
 
 
   def mark(start, end_pos)
-    # return nil if start == end_pos
+    return nil if start == end_pos
     selected_piece = self[start]
     selected_piece.moved = true if selected_piece.is_a?(Pawn)
     self[end_pos] = selected_piece
@@ -68,14 +68,11 @@ class Board
     end
   end
 
-  # def checkmate?(color)
-  #   king_pos = find_king(color)
-  # end
-
   def find_king(color)
-    grid.flatten.find do |piece|
+    king = grid.flatten.find do |piece|
       piece.is_a?(King) && piece.color == color
-    end.pos
+    end
+    king.pos
   end
 
   def in_bounds?(pos)

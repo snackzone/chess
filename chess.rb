@@ -29,7 +29,7 @@ class Chess
   end
 
   def play
-    until over?
+    until checkmate?
       begin
         move
       rescue MoveError => e
@@ -40,10 +40,10 @@ class Chess
       end
       switch_players!
     end
-  end
 
-  def over?
-    false
+    display.render
+    puts "Checkmate!"
+    puts "#{other_player.color} wins!"
   end
 
   def move
@@ -76,9 +76,24 @@ class Chess
     test_board = dup_board
     raise MoveError unless board[first_selected].moves.include?(second_selected)
     test_board.mark(first_selected, second_selected)
-    debugger if test_board.checked?(current_player.color)
     raise CheckError if test_board.checked?(current_player.color)
     true
+  end
+
+  def checkmate?
+    return false unless board.checked?(current_player.color)
+    color_pieces = board.grid.flatten.select do |piece|
+      piece.is_a?(Piece) && piece.color == current_player.color
+    end
+
+    color_pieces.all? do |piece|
+      moves = piece.moves
+      moves.each do |move|
+        test_board = dup_board
+        test_board.mark(piece.pos, move)
+        test_board.checked?(piece.color)
+      end
+    end
   end
 
   def dup_board
