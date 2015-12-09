@@ -1,19 +1,19 @@
-require_relative "display"
-require_relative "board"
-require_relative "piece"
-require_relative "player"
-require_relative "error"
+require_relative 'display'
+require_relative 'board'
+require_relative 'piece'
+require_relative 'player'
+require_relative 'error'
 require 'byebug'
 require 'yaml'
 
 class Chess
   def self.load_game
-     puts "loading saved game..."
-     sleep(1)
+    puts "loading saved game..."
+    sleep(1)
 
-     loaded_game = YAML.load_file("SAVED_GAME.yml")
-     loaded_game.play
-   end
+    loaded_game = YAML.load_file("SAVED_GAME.yml")
+    loaded_game.play
+  end
 
   attr_accessor :board, :display, :first_selected, :second_selected, :players
 
@@ -21,7 +21,6 @@ class Chess
     @board = Board.new
     @display = Display.new(@board, self)
     @players = [Player.new(:white), Player.new(:black)]
-    @first_selected, @second_selected = nil
     @board.new_game!
   end
 
@@ -38,99 +37,74 @@ class Chess
   end
 
   def play
-    until checkmate?
-      begin
-        move
-      rescue MoveError => e
-        self.first_selected, self.second_selected = nil
-        puts e.message
-        sleep(1)
-        retry
-      end
-      switch_players!
-    end
+    take_turn until board.checkmate?(current_player)
 
-    # display.render
+    display.render
     puts "Checkmate!"
     puts "#{other_player.color} wins!"
   end
 
-  def move
+  def take_turn
     display.render
     case display.get_input
     when :save
       save
       switch_players!
     when :return
-      selected_pos = display.cursor_pos
       if first_selected
-        self.second_selected = selected_pos
-        if first_selected == second_selected
-          self.first_selected, self.second_selected = nil
-          move
-        else
-          board.mark(first_selected, second_selected) if valid_move?
-          self.first_selected, self.second_selected = nil
-        end
+        make_second_selection
       else
-        self.first_selected = selected_pos if board[selected_pos].is_a?(Piece) &&
-          board[selected_pos].color == current_player.color
-        move
+        make_first_selection
       end
     else
-      move
+      take_turn
     end
   end
 
-  def valid_move?
-    test_board = dup_board
-    raise MoveError unless board[first_selected].moves.include?(second_selected)
-    test_board.mark(first_selected, second_selected)
-    raise CheckError if test_board.checked?(current_player.color)
-    true
+  def make_first_selection
+    selected_pos = display.cursor_pos
+    if board[selected_pos].is_a?(Piece) &&
+       (board[selected_pos].color == current_player.color)
+      self.first_selected = selected_pos
+    end
+
+    take_turn
   end
 
-  def checkmate?
-    return false unless board.checked?(current_player.color)
-    color_pieces = board.grid.flatten.select do |piece|
-      piece.is_a?(Piece) && piece.color == current_player.color
-    end
-
-    color_pieces.all? do |piece|
-      moves = piece.moves
-      moves.all? do |move|
-        test_board = dup_board
-        test_board.mark(piece.pos, move)
-        test_board.checked?(piece.color)
-      end
-    end
+  def make_second_selection
+    self.second_selected = display.cursor_pos
+    make_move
   end
 
-  def dup_board
-    duped_board = Board.new
+  def reset_selections!
+    self.first_selected, self.second_selected = nil
+  end
 
-    board.grid.each_with_index do |row, row_idx|
-      row.each_with_index do |piece, piece_idx|
-        if piece.nil?
-          next
-        else
-          duped_piece = piece.class.new(color: piece.color, pos: piece.pos, board: duped_board)
-          duped_board[[row_idx, piece_idx]] = duped_piece
-        end
-      end
+  def make_move
+    switch_players! if first_selected == second_selected
+    
+    if board.moving_into_check?(first_selected, second_selected)
+      raise CheckError
     end
 
-    duped_board
+    board.mark(first_selected, second_selected)
+  rescue MoveError => e
+    puts e.message
+    sleep(1)
+    switch_players!
+  ensure
+    reset_selections!
+    switch_players!
   end
 
   def save
-    File.write("SAVED_GAME.yml", to_yaml)
+    File.write('SAVED_GAME.yml', to_yaml)
   end
 end
 
 if __FILE__ == $PROGRAM_NAME
-  puts "enter NEW or LOAD."
+  puts 'enter NEW or LOAD.'
   input = gets.chomp.downcase
 
-  input == "load" ? Chess.load_game : Chess.new.play
+  input == 'load' ? Chess.load_game : Chess.new.play
 end

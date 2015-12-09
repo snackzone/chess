@@ -48,14 +48,26 @@ class Board
     end
   end
 
-
   def mark(start, end_pos)
+    unless self[start].moves.include?(end_pos)
+      raise MoveError
+    end
+
+    #creates infinite loop here
+    # raise CheckError if moving_into_check?(start, end_pos)
+
     return nil if start == end_pos
     selected_piece = self[start]
     selected_piece.moved = true if selected_piece.is_a?(Pawn)
     self[end_pos] = selected_piece
     selected_piece.pos = end_pos
     self[start] = nil
+  end
+
+  def moving_into_check?(start, end_pos)
+    test_board = dup_board
+    test_board.mark(start, end_pos)
+    test_board.checked?(self[end_pos].color)
   end
 
   def checked?(color)
@@ -66,6 +78,38 @@ class Board
         piece.moves.include?(king_pos)
       end
     end
+  end
+
+  def checkmate?(player)
+    return false unless checked?(player.color)
+
+    color_pieces = grid.flatten.select do |piece|
+      piece.is_a?(Piece) && piece.color == current_player.color
+    end
+
+    color_pieces.all? do |piece|
+      moves = piece.moves
+      moves.all? do |move|
+        test_board = dup_board
+        test_board.mark(piece.pos, move)
+        test_board.checked?(piece.color)
+      end
+    end
+  end
+
+  def dup_board
+    duped_board = Board.new
+
+    grid.each_with_index do |row, row_idx|
+      row.each_with_index do |piece, piece_idx|
+        next if piece.nil?
+        opts = { color: piece.color, pos: piece.pos, board: duped_board }
+        duped_piece = piece.class.new(opts)
+        duped_board[[row_idx, piece_idx]] = duped_piece
+      end
+    end
+
+    duped_board
   end
 
   def find_king(color)
