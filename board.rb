@@ -67,7 +67,8 @@ class Board
   def moving_into_check?(start, end_pos)
     test_board = dup_board
     test_board.mark(start, end_pos)
-    test_board.checked?(self[end_pos].color)
+    #debugger
+    test_board.checked?(test_board[end_pos].color)
   end
 
   def checked?(color)
@@ -84,7 +85,7 @@ class Board
     return false unless checked?(player.color)
 
     color_pieces = grid.flatten.select do |piece|
-      piece.is_a?(Piece) && piece.color == current_player.color
+      piece.is_a?(Piece) && piece.color == player.color
     end
 
     color_pieces.all? do |piece|
